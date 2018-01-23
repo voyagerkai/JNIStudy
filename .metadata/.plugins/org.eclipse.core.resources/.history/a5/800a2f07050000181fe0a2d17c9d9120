@@ -28,7 +28,7 @@ public class MainActivity extends Activity implements OnClickListener{
         
         System.out.println("HelloJni");
         System.out.println("Change");
-        System.out.println("Change Again========");
+        System.out.println("Change Age");
         
         tv = (TextView) findViewById(R.id.tv_jni_test);
         tv.setOnClickListener(this);
