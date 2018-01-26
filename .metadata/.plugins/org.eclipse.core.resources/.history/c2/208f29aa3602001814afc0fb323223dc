@@ -1,0 +1,82 @@
+#include <jni.h>
+#include <android/log.h>
+#include <string.h>
+#define LOG_TAG "System.out"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+
+
+char * JStringToCString(JNIEnv *env,jstring str){
+
+	char *ret = NULL;
+	jclass cls = (*env)->FindClass(env,"java/lang/String");
+	jmethodID mid = (*env)->GetMethodID(env,cls,"getBytes","(Ljava/lang/String;)[B");
+	jstring code = (*env)->NewStringUTF(env,"GB2312");
+	jbyteArray barry = (*env)->CallObjectMethod(env,str,mid,code);
+	jint c = (*env)->GetArrayLength(env,barry);
+	jbyte* ba = (*env)->GetByteArrayElements(env, barry, JNI_FALSE);
+	if(c>0){
+		ret = (char *)malloc(c+1);
+		memcpy(ret,ba,c);
+		ret[c] = 0;
+	}
+	(*env)->ReleaseByteArrayElements(env, barry, ba, 0);
+	return ret;
+
+}
+
+int add(int x,int y){
+
+	LOGI("x + y = %d",x+y);
+	return x+y;
+}
+
+
+//jstring test(JNIEnv *env,String str){
+//	jclass cls = (*env)->FindClass(env,"com/example/myfristjnitest/Dog");
+//	jmethodID mi = (*env)->GetMethodID(env,cls,"TestCCallJava","(ILjava/lang/String;)Ljava/lang/String;");
+//	jstring str = (*env)->CallObjectMethod(env,);
+//
+//}
+
+
+
+/*
+ *  方法名称规定 ： Java_完整的包名_方法名()
+ * 	JNIEnv 指针
+ *
+ * 	参数介绍：
+ * 	env  :代表Java环境，通过这个环境可以调用Java中的方法
+ * 	thiz :代表调用JNI方法的对象，即MainActivity对象
+ *
+ */
+
+
+
+
+jstring Java_com_example_myfristjnitest_MainActivity_helloJNI(JNIEnv *env, jobject thiz){
+	/*
+	 * 调用 android-ndk-r14\platforms\android-9\arch-arm\user\include 中jni.h中的方法
+	 * jni.h中定义的方法 jstring(*NewStringUTF)(JNIEnv*,const char*);
+	 */
+	return (*env)->NewStringUTF(env,"Hello World!!!!你好JNI");
+}
+
+
+jint Java_com_example_myfristjnitest_MainActivity_add(JNIEnv *env, jobject thiz, jint x, jint y){
+	return add(x,y);
+}
+
+jstring Java_com_example_myfristjnitest_MainActivity_getString(JNIEnv *env, jobject thiz, jstring str){
+
+	char *result = (char*)JStringToCString(env, str);
+	LOGI("%s",result);
+	return (*env)->NewStringUTF(env,strcat(result, " I do!"));
+//	char *p = (char*)Jstring2CStr(env, str);
+//	//打印Java传递过来的数据
+//	LOGI("Java JNI string parameter is : %s", p);
+//	char *append = "append";
+//	//strcat(dest, source) 函数可以将source字符串 添加到dest字符串后面
+//	return (*env)->NewStringUTF(env, strcat(p, append));
+}
+

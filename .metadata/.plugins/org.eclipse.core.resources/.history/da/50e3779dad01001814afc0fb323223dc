@@ -1,0 +1,14 @@
+package com.example.myfristjnitest;
+
+public class Dog {
+
+	
+	public return TestCCallJava(int a,String b){
+		
+		
+		
+	}
+	
+	
+	
+}

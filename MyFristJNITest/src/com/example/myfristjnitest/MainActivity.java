@@ -13,6 +13,9 @@ public class MainActivity extends Activity implements OnClickListener{
 	
 	
 	public native String helloJNI();
+	public native int add(int x,int y);
+	public native String getString(String str);
+	public native int arrayChannl(int[] array);
 	
 	static {
 		System.loadLibrary("JNITest");
@@ -21,23 +24,22 @@ public class MainActivity extends Activity implements OnClickListener{
 	
 	private TextView tv;
 	
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        System.out.println("HelloJni");
-        System.out.println("Change");
-        System.out.println("Change Again========");
-        
         tv = (TextView) findViewById(R.id.tv_jni_test);
         tv.setOnClickListener(this);
+        
     }
 
 	@Override
 	public void onClick(View arg0) {
-		String result = helloJNI();
-		tv.setText(result);
+		int test[] = {100,123,5,9,7};
+		int size = arrayChannl(test);
+		tv.setText("该数组有"+size+"个元素！");
 	}
     
 }
