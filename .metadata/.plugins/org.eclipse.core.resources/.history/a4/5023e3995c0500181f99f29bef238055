@@ -1,0 +1,16 @@
+package com.example.myfristjnitest;
+
+public class Dog {
+
+	
+	
+	public native void DogTest();
+	
+	public native void DogStringTest();
+	
+	public void hellojava(){
+		System.out.println("hello world");
+	}
+	
+	
+}

@@ -1,0 +1,181 @@
+#include <jni.h>
+#include <android/log.h>
+#include <string.h>
+#define LOG_TAG "System.out"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+
+char * JStringToCString(JNIEnv *env, jstring str) {
+
+	char *ret = NULL;
+	jclass cls = (*env)->FindClass(env, "java/lang/String");
+	jmethodID mid = (*env)->GetMethodID(env, cls, "getBytes",
+			"(Ljava/lang/String;)[B");
+	jstring code = (*env)->NewStringUTF(env, "GB2312");
+	jbyteArray barry = (*env)->CallObjectMethod(env, str, mid, code);
+	jint c = (*env)->GetArrayLength(env, barry);
+	jbyte* ba = (*env)->GetByteArrayElements(env, barry, JNI_FALSE);
+	if (c > 0) {
+		ret = (char *) malloc(c + 1);
+		memcpy(ret, ba, c);
+		ret[c] = 0;
+	}
+	(*env)->ReleaseByteArrayElements(env, barry, ba, 0);
+	return ret;
+
+}
+
+int add(int x, int y) {
+
+	LOGI("x + y = %d", x+y);
+	return x + y;
+}
+
+jstring test(JNIEnv *env, jobject thiz) {
+	jclass cls = (*env)->FindClass(env, "com/example/myfristjnitest/Dog");
+	if (cls == 0) {
+		LOGI("得不到类");
+	} else {
+		LOGI("得到类");
+	}
+	jmethodID mi = (*env)->GetMethodID(env, cls, "TestCCallJava",
+			"(ILjava/lang/String;)Ljava/lang/String;");
+	if (mi == 0) {
+		LOGI("得不到方法");
+	} else {
+		LOGI("得到方法");
+	}
+	jstring s = (*env)->CallObjectMethod(env, thiz, mi, 1, "234");
+	//ingToCString(env,s);
+	LOGI("得到结果是");
+}
+
+/*
+ *  方法名称规定 ： Java_完整的包名_方法名()
+ * 	JNIEnv 指针
+ *
+ * 	参数介绍：
+ * 	env  :代表Java环境，通过这个环境可以调用Java中的方法
+ * 	thiz :代表调用JNI方法的对象，即MainActivity对象
+ *
+ */
+
+jstring Java_com_example_myfristjnitest_MainActivity_helloJNI(JNIEnv *env,
+		jobject thiz) {
+	/*
+	 * 调用 android-ndk-r14\platforms\android-9\arch-arm\user\include 中jni.h中的方法
+	 * jni.h中定义的方法 jstring(*NewStringUTF)(JNIEnv*,const char*);
+	 */
+	return (*env)->NewStringUTF(env, "Hello World!!!!你好JNI");
+}
+
+jint Java_com_example_myfristjnitest_MainActivity_add(JNIEnv *env, jobject thiz,
+		jint x, jint y) {
+	return add(x, y);
+}
+
+jstring Java_com_example_myfristjnitest_MainActivity_getString(JNIEnv *env,
+		jobject thiz, jstring str) {
+
+	char *result = (char*) JStringToCString(env, str);
+	LOGI("%s", result);
+	return (*env)->NewStringUTF(env, strcat(result, " I do!"));
+//	char *p = (char*)Jstring2CStr(env, str);
+//	//打印Java传递过来的数据
+//	LOGI("Java JNI string parameter is : %s", p);
+//	char *append = "append";
+//	//strcat(dest, source) 函数可以将source字符串 添加到dest字符串后面
+//	return (*env)->NewStringUTF(env, strcat(p, append));
+}
+
+jint Java_com_example_myfristjnitest_MainActivity_arrayChannl(JNIEnv *env,
+		jobject thiz, jintArray array) {
+//	int len = (*env)->GetArrayLength(env,array);
+//	LOGI("数组长度是:%d",len);
+//	int *iarr = (*env)->GetIntArrayElements(env,array,0);
+//	for(int i = 0; i < len; i ++)
+//	{
+//		LOGI("第%d个元素是%d", i+1, *(iarr + i));
+//	}
+
+	return 10;
+
+}
+
+void Java_com_example_myfristjnitest_Dog_DogTest(JNIEnv *env, jobject obj) {
+	LOGI("in code");
+	//DataProvider完整类名 shulaing.han.ndk_callback.DataProvider
+	char* classname = "com/example/myfristjnitest/Dog";
+
+	jclass dpclazz = (*env)->FindClass(env, classname);
+	if (dpclazz == 0)
+		LOGI("class not find !!!");
+	else
+		LOGI("class find !!!");
+
+	//参数介绍 : 第二个参数是Class对象, 第三个参数是方法名,第四个参数是方法的签名, 获取到调用的method
+	jmethodID methodID = (*env)->GetMethodID(env, dpclazz, "hellojava", "()V");
+	if (methodID == 0)
+		LOGI("method not find !!!");
+	else
+		LOGI("method find !!!");
+
+	/*
+	 * 调用方法 void (*CallVoidMethod)(JNIEnv*, jobject, jmethodID, ...);
+	 * 参数介绍 : 后面的 ... 是可变参数, 如果该返回值void的方法有参数, 就将参数按照次序排列
+	 */
+	LOGI("before call method");
+	(*env)->CallVoidMethod(env, obj, methodID);
+	LOGI("after call method");
+}
+
+void Java_com_example_myfristjnitest_Dog_DogStringTest(JNIEnv *env, jobject obj) {
+	char *clsname = "com/example/myfristjnitest/Dog";
+	jclass cls = (*env)->FindClass(env, clsname);
+	if (cls == 0) {
+		LOGI("c0");
+	} else {
+		LOGI("c1");
+	}
+	jmethodID mid = (*env)->GetMethodID(env, cls, "hellostring",
+			"(Ljava/lang/String;)V");
+	if (cls == 0) {
+		LOGI("m0");
+	} else {
+		LOGI("m1");
+	}
+
+	(*env)->CallVoidMethod(env, obj, mid, (*env)->NewStringUTF(env, "道可道，非常道"));
+
+}
+
+jint Java_com_example_myfristjnitest_Dog_DogIntTest(JNIEnv *env, jobject obj) {
+	char *clsname = "com/example/myfristjnitest/Dog";
+	jclass cls = (*env)->FindClass(env, clsname);
+	if (cls == 0) {
+		LOGI("c0");
+	} else {
+		LOGI("c1");
+	}
+	jmethodID mid = (*env)->GetMethodID(env, cls, "helloint","(II)I");
+	if (cls == 0) {
+		LOGI("m0");
+	} else {
+		LOGI("m1");
+	}
+
+	int x = 2;
+	int y = 5;
+
+	jint i = (*env)->CallIntMethod(env,obj,mid,x,y);
+
+	LOGI("%d + %d = %d",x,y,i);
+}
+
+
+jstring Java_com_example_myfristjnitest_Dog_LastTest(JNIEnv *env, jobject obj){
+
+	char *clsname = "com/example/myfristjnitest/Dog";
+
+
+}

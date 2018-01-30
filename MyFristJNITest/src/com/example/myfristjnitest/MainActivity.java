@@ -17,6 +17,8 @@ public class MainActivity extends Activity implements OnClickListener{
 	public native String getString(String str);
 	public native int arrayChannl(int[] array);
 	
+	Dog d ;
+	
 	static {
 		System.loadLibrary("JNITest");
 	}
@@ -29,7 +31,7 @@ public class MainActivity extends Activity implements OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+        d = new Dog();
         tv = (TextView) findViewById(R.id.tv_jni_test);
         tv.setOnClickListener(this);
         
@@ -39,7 +41,11 @@ public class MainActivity extends Activity implements OnClickListener{
 	public void onClick(View arg0) {
 		int test[] = {100,123,5,9,7};
 		int size = arrayChannl(test);
-		tv.setText("该数组有"+size+"个元素！");
+		tv.setText(size+"");
 	}
     
+	public Dog getDog(){
+		return new Dog();
+	}
+	
 }
